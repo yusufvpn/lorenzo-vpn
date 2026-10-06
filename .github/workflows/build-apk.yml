@@ -37,6 +37,8 @@ jobs:
       - name: Build Release APK
         run: |
           cd lorenzo_app
+          echo "android.useAndroidX=true" >> android/gradle.properties
+          echo "android.enableJetifier=true" >> android/gradle.properties
           flutter build apk --release --android-skip-build-dependency-validation
           cp build/app/outputs/flutter-apk/app-release.apk ../LorenzoVPN.apk
 
