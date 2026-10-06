@@ -41,6 +41,7 @@ jobs:
           echo "android.useAndroidX=true" >> android/gradle.properties
           echo "android.enableJetifier=true" >> android/gradle.properties
           sed -i 's/FlutterV2ray/V2ray/g' lib/main.dart
+          sed -i 's/await _v2ray.initializeV2Ray();//g' lib/main.dart
           sed -i 's/_status.downloadSpeed.isNotEmpty/true/g' lib/main.dart
           sed -i 's/_status.uploadSpeed.isNotEmpty/true/g' lib/main.dart
           sed -i 's/? _status.downloadSpeed/? "${_status.downloadSpeed}"/g' lib/main.dart
