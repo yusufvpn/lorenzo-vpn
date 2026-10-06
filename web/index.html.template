@@ -262,12 +262,15 @@
 
     <div class="container">
         <div class="header">
+            <div style="margin-bottom: 16px;">
+                <img src="lorenzo.jpg" alt="Lorenzo" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #00f2fe; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); object-fit: cover;">
+            </div>
             <div class="status-badge">
                 <span class="status-dot"></span>
-                <span>سيرفر الـ VPN يعمل بنجاح</span>
+                <span>سيرفر Lorenzo VPN يعمل بنجاح</span>
             </div>
-            <h1>اتصالك المشفر والآمن</h1>
-            <p class="subtitle">VLESS over WebSocket (HTTPS) - فك حظر كامل وبنج مستقر للألعاب</p>
+            <h1>LORENZO VPN 👑</h1>
+            <p class="subtitle">THE STRICT LEADER • اتصال مشفر، فك حظر كامل، وأقل بينج للألعاب</p>
         </div>
 
         <div class="card">
