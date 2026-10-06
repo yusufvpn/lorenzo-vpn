@@ -37,14 +37,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  // Built-in VLESS Link configured for Lorenzo VPN
+  // Fully qualified VLESS link with explicit SNI & Host headers for Railway
   static const String vlessLink =
-      "vless://0e8d9728-b93f-484d-884e-e0309714c61f@lorenzo-vpn-production.up.railway.app:443?path=%2Fvless&security=tls&encryption=none&type=ws#LorenzoVPN";
+      "vless://0e8d9728-b93f-484d-884e-e0309714c61f@lorenzo-vpn-production.up.railway.app:443?type=ws&security=tls&sni=lorenzo-vpn-production.up.railway.app&host=lorenzo-vpn-production.up.railway.app&path=%2Fvless&encryption=none#LorenzoVPN";
 
-  late final FlutterV2ray _v2ray;
+  late final V2ray _v2ray;
   V2RayStatus _status = V2RayStatus();
   bool _isConnected = false;
   bool _isConnecting = false;
+  int _pingMs = 102;
 
   Timer? _timer;
   int _secondsElapsed = 0;
@@ -55,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _initV2ray();
 
     _pulseController = AnimationController(
       vsync: this,
@@ -65,22 +65,25 @@ class _HomeScreenState extends State<HomeScreen>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.12).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    _initV2ray();
   }
 
   Future<void> _initV2ray() async {
-    _v2ray = FlutterV2ray(
+    _v2ray = V2ray(
       onStatusChanged: (status) {
         setState(() {
           _status = status;
-          if (status.state == 'CONNECTED') {
+          final state = status.state.toUpperCase();
+          if (state == 'CONNECTED') {
             _isConnected = true;
             _isConnecting = false;
             _startTimer();
-          } else if (status.state == 'DISCONNECTED') {
+          } else if (state == 'DISCONNECTED') {
             _isConnected = false;
             _isConnecting = false;
             _stopTimer();
-          } else if (status.state == 'CONNECTING') {
+          } else if (state == 'CONNECTING') {
             _isConnecting = true;
           }
         });
@@ -88,8 +91,15 @@ class _HomeScreenState extends State<HomeScreen>
     );
 
     try {
-      await _v2ray.initializeV2Ray();
-    } catch (_) {}
+      await _v2ray.initialize(
+        notificationIconResourceType: "mipmap",
+        notificationIconResourceName: "ic_launcher",
+        providerBundleIdentifier: "com.lorenzo.vpn",
+        groupIdentifier: "group.com.lorenzo.vpn",
+      );
+    } catch (e) {
+      debugPrint("V2Ray init error: $e");
+    }
   }
 
   void _startTimer() {
@@ -112,6 +122,14 @@ class _HomeScreenState extends State<HomeScreen>
     final m = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
     final s = (seconds % 60).toString().padLeft(2, '0');
     return "$h:$m:$s";
+  }
+
+  String _formatSpeed(int bytesPerSec) {
+    if (bytesPerSec <= 0) return "0 KB/s";
+    if (bytesPerSec < 1024 * 1024) {
+      return "${(bytesPerSec / 1024).toStringAsFixed(1)} KB/s";
+    }
+    return "${(bytesPerSec / (1024 * 1024)).toStringAsFixed(1)} MB/s";
   }
 
   Future<void> _toggleConnection() async {
@@ -137,11 +155,33 @@ class _HomeScreenState extends State<HomeScreen>
         }
 
         final parser = V2ray.parseFromURL(vlessLink);
+        // Explicit DNS configuration to prevent DNS leaks and drop
+        parser.dns = {
+          "servers": ["1.1.1.1", "8.8.8.8"]
+        };
+
+        final configJson = parser.getFullConfiguration();
+
         await _v2ray.startV2Ray(
           remark: "Lorenzo VPN (Amsterdam)",
-          config: parser.getFullConfiguration(),
+          config: configJson,
           proxyOnly: false,
+          notificationDisconnectButtonName: "قطع الاتصال",
         );
+
+        // Test connected ping after a moment
+        Future.delayed(const Duration(seconds: 3), () async {
+          if (_isConnected) {
+            try {
+              final delay = await _v2ray.getConnectedServerDelay();
+              if (delay > 0) {
+                setState(() {
+                  _pingMs = delay;
+                });
+              }
+            } catch (_) {}
+          }
+        });
       } catch (e) {
         setState(() {
           _isConnecting = false;
@@ -150,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("فشل الاتصال: $e"),
+              content: Text("خطأ في الاتصال: $e"),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -228,15 +268,15 @@ class _HomeScreenState extends State<HomeScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF00F2FE), width: 1.5),
+            border: Border.all(color: const Color(0xFF00F2FE), width: 2),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00F2FE).withOpacity(0.3),
-                blurRadius: 10,
+                color: const Color(0xFF00F2FE).withOpacity(0.35),
+                blurRadius: 12,
               ),
             ],
           ),
@@ -247,14 +287,14 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text(
               "LORENZO VPN",
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 19,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.5,
                 color: Colors.white,
@@ -335,12 +375,12 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.bolt, size: 14, color: Color(0xFF10B981)),
-                SizedBox(width: 2),
+              children: [
+                const Icon(Icons.bolt, size: 14, color: Color(0xFF10B981)),
+                const SizedBox(width: 2),
                 Text(
-                  "102 ms",
-                  style: TextStyle(
+                  "$_pingMs ms",
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF10B981),
@@ -392,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   )
                 : Icon(
-                    Icons.power_settings_new_rounded,
+                    active ? Icons.shield_rounded : Icons.power_settings_new_rounded,
                     size: 74,
                     color: glowColor,
                   ),
@@ -443,19 +483,15 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           Container(width: 1, height: 35, color: const Color(0xFF222D42)),
           _buildStatItem(
-            title: "التحميل (Download)",
-            value: _status.downloadSpeed.isNotEmpty
-                ? _status.downloadSpeed
-                : "0 KB/s",
+            title: "التحميل",
+            value: _formatSpeed(_status.downloadSpeed),
             icon: Icons.arrow_downward_rounded,
             color: const Color(0xFF10B981),
           ),
           Container(width: 1, height: 35, color: const Color(0xFF222D42)),
           _buildStatItem(
-            title: "الرفع (Upload)",
-            value: _status.uploadSpeed.isNotEmpty
-                ? _status.uploadSpeed
-                : "0 KB/s",
+            title: "الرفع",
+            value: _formatSpeed(_status.uploadSpeed),
             icon: Icons.arrow_upward_rounded,
             color: const Color(0xFFFF2A55),
           ),
