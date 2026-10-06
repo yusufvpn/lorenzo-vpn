@@ -1,33 +1,25 @@
+# Stage 1: Build the Lorenzo VPN Server in pure Go
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+COPY server/go.mod server/go.sum ./
+RUN go mod download
+
+COPY server/ ./
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o lorenzo-server .
+
+# Stage 2: Minimal Production Image
 FROM alpine:latest
 
-# Install dependencies: nginx, curl, unzip, bash
-RUN apk add --no-cache nginx curl unzip bash
+WORKDIR /app
+RUN apk --no-cache add ca-certificates tzdata
 
-# Create directories
-RUN mkdir -p /etc/xray /usr/local/bin /var/www/html /run/nginx /var/log/nginx
+COPY --from=builder /app/lorenzo-server /app/lorenzo-server
+COPY server/web /app/web
 
-# Download and install Xray Core
-RUN XRAY_URL="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip" && \
-    curl -sSL -H "User-Agent: Mozilla/5.0" -o /tmp/xray.zip ${XRAY_URL} && \
-    unzip -q /tmp/xray.zip -d /tmp/xray && \
-    mv /tmp/xray/xray /usr/local/bin/xray && \
-    chmod +x /usr/local/bin/xray && \
-    rm -rf /tmp/xray /tmp/xray.zip
-
-# Copy configuration templates and scripts
-COPY config.json.template /etc/xray/config.json.template
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
-COPY entrypoint.sh /entrypoint.sh
-COPY web/ /var/www/html/
-
-# Permissions
-RUN chmod +x /entrypoint.sh
-
-# Default environment variables
 ENV PORT=8080
-ENV UUID=""
-ENV WSPATH="/vless"
+ENV LORENZO_SECRET=LorenzoStrictLeaderSecret2026
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/app/lorenzo-server"]

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorenzo VPN | The Strict Leader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #070a12;
+            --bg-card: #0f1422;
+            --bg-card-border: #1a233a;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #4facfe;
+            --accent-green: #10b981;
+            --accent-gold: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glow-color: rgba(0, 242, 254, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.07) 0%, transparent 40%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .hero-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-cyan);
+            box-shadow: 0 0 30px var(--glow-color);
+            object-fit: cover;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: var(--accent-green);
+            padding: 6px 18px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+            margin-bottom: 20px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .spec-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 14px;
+            border-radius: 12px;
+        }
+
+        .spec-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #ffffff;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.25);
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, #1e293b 100%);
+        }
+
+        .btn-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-icon {
+            font-size: 1.8rem;
+        }
+
+        .btn-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .btn-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-tag {
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .security-note {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.85rem;
+            color: #fde68a;
+            line-height: 1.6;
+            margin-top: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-banner">
+            <img src="lorenzo.jpg" alt="Lorenzo Strict Leader" class="hero-avatar">
+            <div>
+                <span class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="server-status-text">السيرفر متصل وفعال بنجاح 100%</span>
+                </span>
+            </div>
+            <h1>LORENZO VPN</h1>
+            <p class="subtitle">The Strict Leader • Enterprise Encrypted Tunnel Ecosystem</p>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>🛡️ مواصفات النفق المشفر</span>
+            </div>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <span class="spec-label">الموقع الجغرافي</span>
+                    <span class="spec-value">🇳🇱 أمستردام (أوروبا)</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-label">التشفير الأساسي</span>
+                    <span class="spec-value">🔒 TLS 1.3 + ChaCha20</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-label">نوع النفق</span>
+                    <span class="spec-value">🚀 Lorenzo WebSocket Stream</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-label">نظام التحقق</span>
+                    <span class="spec-value">👑 HMAC Token Auth</span>
+                </div>
+            </div>
+
+            <div class="section-title">
+                <span>⚡ تحميل التطبيقات الرسمية (مجانياً 100%)</span>
+            </div>
+
+            <a href="https://github.com/yusufvpn/lorenzo-vpn/releases/latest" target="_blank" class="download-btn">
+                <div class="btn-left">
+                    <span class="btn-icon">💻</span>
+                    <div>
+                        <span class="btn-title">تطبيق الكمبيوتر (Windows PC)</span>
+                        <span class="btn-subtitle">برنامج خفيف وسريع بدون أي برامج خارجية</span>
+                    </div>
+                </div>
+                <span class="btn-tag">v1.0.0 EXE</span>
+            </a>
+
+            <a href="https://github.com/yusufvpn/lorenzo-vpn/releases/latest" target="_blank" class="download-btn">
+                <div class="btn-left">
+                    <span class="btn-icon">📱</span>
+                    <div>
+                        <span class="btn-title">تطبيق الأندرويد (Android APK)</span>
+                        <span class="btn-subtitle">تثبيت مباشر وتحديث إجباري تلقائي</span>
+                    </div>
+                </div>
+                <span class="btn-tag">v1.0.0 APK</span>
+            </a>
+
+            <div class="security-note">
+                <strong>🔒 حماية التحديث الإجباري (Force Update):</strong>
+                يتم التحقق من نسخة التطبيق عبر النواة المشفرة لحظياً. يمنع التطبيق الاتصال إذا كانت نسختك قديمة ويطلب التحديث تلقائياً لحمايتك وضمان أعلى سرعة.
+            </div>
+        </div>
+
+        <div class="footer">
+            جميع الحقوق محفوظة &copy; 2026 Lorenzo VPN • مشفر ومحمي بتقنيات الأمن السيبراني
+        </div>
+    </div>
+
+    <script>
+        // Check live API status
+        fetch('/api/status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'online') {
+                    document.getElementById('server-status-text').innerText = 'السيرفر مشفر وشغال 100% (' + data.region + ')';
+                }
+            })
+            .catch(() => {});
+    </script>
+</body>
+</html>

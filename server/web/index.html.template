@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سيرفر VPN الشخصي | Railway VLESS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-card: #121826;
+            --bg-card-border: #1f293d;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #4facfe;
+            --accent-green: #10b981;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --code-bg: #070a10;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.08) 0%, transparent 40%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: var(--accent-green);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-wrapper {
+            background: #ffffff;
+            padding: 14px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.2);
+            display: inline-block;
+        }
+
+        .qr-note {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .link-section {
+            margin-top: 15px;
+        }
+
+        .link-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .code-box {
+            background: var(--code-bg);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            word-break: break-all;
+            direction: ltr;
+            text-align: left;
+            user-select: all;
+            margin-bottom: 12px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .btn-copy {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+            color: #050a14;
+            border: none;
+            padding: 13px;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-copy:active {
+            transform: translateY(0);
+        }
+
+        .steps-card {
+            background: rgba(18, 24, 38, 0.7);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .steps-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .step-number {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-text b {
+            color: var(--text-main);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            background: #10b981;
+            color: #032014;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div style="margin-bottom: 16px;">
+                <img src="lorenzo.jpg" alt="Lorenzo" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #00f2fe; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); object-fit: cover;">
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>سيرفر Lorenzo VPN يعمل بنجاح</span>
+            </div>
+            <h1>LORENZO VPN 👑</h1>
+            <p class="subtitle">THE STRICT LEADER • اتصال مشفر، فك حظر كامل، وأقل بينج للألعاب</p>
+        </div>
+
+        <div class="card">
+            <div class="qr-section">
+                <div class="qr-wrapper">
+                    <div id="qrcode"></div>
+                </div>
+                <div class="qr-note">امسح الكود بكاميرا تطبيق v2rayNG للاتصال فوراً 📱</div>
+            </div>
+
+            <div class="link-section">
+                <label class="link-label">رابط التكوين (VLESS Link):</label>
+                <div class="code-box" id="vless-text">جاري إعداد الرابط...</div>
+                <button class="btn-copy" id="btn-copy" onclick="copyLink()">
+                    <span>📋</span>
+                    <span id="btn-text">نسخ رابط التكوين</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="steps-card">
+            <div class="steps-title">
+                <span>🚀</span>
+                <span>طريقة التشغيل على الموبايل في دقيقة واحدة:</span>
+            </div>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-text">حمّل تطبيق <b>v2rayNG</b> للأندرويد (أو <b>Streisand</b> للآيفون) من المتجر.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-text">اضغط على زر <b>"نسخ رابط التكوين"</b> بالأعلى (أو امسح رمز الـ QR بالكاميرا).</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-text">في تطبيق v2rayNG، اضغط علامة <b>(+)</b> بالأعلى ثم اختر <b>"Import config from clipboard"</b>.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-text">اضغط على زر الاتصال الدائري الكبير بالأسفل <b>(Connect)</b> ومبروك عليك! 🎉</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            مستضاف بأمان على Cloud Container • مشفر ببروتوكول TLS بورت 443
+        </div>
+    </div>
+
+    <div class="toast" id="toast">تم نسخ رابط الـ VPN بنجاح! 🚀</div>
+
+    <script>
+        const uuid = "__UUID__";
+        const wspath = "__WSPATH__";
+        
+        // Auto-detect host domain from browser
+        const currentHost = window.location.host;
+        const vlessUrl = `vless://${uuid}@${currentHost}:443?path=${encodeURIComponent(wspath)}&security=tls&encryption=none&type=ws#RailwayVPN`;
+
+        // Set text
+        document.getElementById('vless-text').innerText = vlessUrl;
+
+        // Render QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: vlessUrl,
+            width: 175,
+            height: 175,
+            colorDark: "#050a14",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        // Copy function
+        function copyLink() {
+            navigator.clipboard.writeText(vlessUrl).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                const btnText = document.getElementById('btn-text');
+                btnText.innerText = "تم النسخ! ✓";
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    btnText.innerText = "نسخ رابط التكوين";
+                }, 2500);
+            }).catch(err => {
+                alert("يرجى نسخ الرابط يدوياً");
+            });
+        }
+    </script>
+</body>
+</html>
