@@ -547,8 +547,15 @@
                         pingText.innerText = data.ping + ' ms';
                     }
                 })
-                .catch(() => {});
-        }, 1500);
+        // Heartbeat
+        setInterval(() => {
+            fetch('/api/heartbeat').catch(() => {});
+        }, 1000);
+
+        // Clean exit when window closes
+        window.addEventListener('beforeunload', () => {
+            navigator.sendBeacon('/api/exit');
+        });
     </script>
 </body>
 </html>

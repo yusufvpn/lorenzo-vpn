@@ -74,6 +74,10 @@ func main() {
 	// API: Poll Stats
 	mux.HandleFunc("/api/poll-stats", handlePollStats)
 
+	// API: Heartbeat & Exit
+	mux.HandleFunc("/api/heartbeat", handleHeartbeat)
+	mux.HandleFunc("/api/exit", handleExit)
+
 	uiAddr := "127.0.0.1:" + UIPort
 	listener, err := net.Listen("tcp", uiAddr)
 	if err != nil {
@@ -177,8 +181,26 @@ func handlePollStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+var (
+	lastHeartbeat int64
+	hasConnectedUI int32
+)
+
+func handleHeartbeat(w http.ResponseWriter, r *http.Request) {
+	atomic.StoreInt64(&lastHeartbeat, time.Now().Unix())
+	atomic.StoreInt32(&hasConnectedUI, 1)
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleExit(w http.ResponseWriter, r *http.Request) {
+	log.Println("[Lorenzo] Exit requested by UI.")
+	_ = disableWindowsProxy()
+	os.Exit(0)
+}
+
 func launchDesktopApp(url string) {
-	// Look for Microsoft Edge (Standard on every Windows 10/11)
+	atomic.StoreInt64(&lastHeartbeat, time.Now().Unix())
+
 	edgePaths := []string{
 		`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`,
 		`C:\Program Files\Microsoft\Edge\Application\msedge.exe`,
@@ -195,28 +217,40 @@ func launchDesktopApp(url string) {
 	tempDir := filepath.Join(os.TempDir(), "LorenzoVPN_DesktopProfile")
 
 	if targetEdge != "" {
-		// Run standalone frameless app mode
 		cmd := exec.Command(targetEdge,
 			"--app="+url,
 			"--window-size=440,730",
 			"--user-data-dir="+tempDir,
+			"--proxy-bypass-list=127.0.0.1;localhost;<local>",
 			"--no-first-run",
 			"--no-default-browser-check",
 		)
-		err := cmd.Run()
+		err := cmd.Start()
 		if err != nil {
-			log.Printf("Edge process closed: %v", err)
+			log.Printf("Failed to start Edge window: %v, falling back...", err)
+			_ = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 		}
-		// When window closes, cleanly shut down
-		_ = disableWindowsProxy()
-		os.Exit(0)
 	} else {
-		// Fallback: open default browser
 		_ = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-		// Keep server running until user enters key in console
-		var input string
-		fmt.Scanln(&input)
-		_ = disableWindowsProxy()
-		os.Exit(0)
 	}
+
+	// Watchdog loop: keeps process alive and monitors UI heartbeat
+	go func() {
+		// Wait 15 seconds grace period for UI to load
+		time.Sleep(15 * time.Second)
+		for {
+			time.Sleep(2 * time.Second)
+			if atomic.LoadInt32(&hasConnectedUI) == 1 {
+				last := atomic.LoadInt64(&lastHeartbeat)
+				if time.Now().Unix()-last > 6 {
+					log.Println("[Lorenzo] UI window closed (heartbeat lost), shutting down cleanly...")
+					_ = disableWindowsProxy()
+					os.Exit(0)
+				}
+			}
+		}
+	}()
+
+	// Keep main thread alive
+	select {}
 }
