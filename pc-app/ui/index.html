@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorenzo VPN | The Strict Leader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060911;
+            --bg-card: #0d121f;
+            --bg-card-border: #182238;
+            --cyan-glow: #00f2fe;
+            --cyan-dim: rgba(0, 242, 254, 0.15);
+            --emerald-glow: #10b981;
+            --emerald-dim: rgba(16, 185, 129, 0.15);
+            --red-glow: #ff2a55;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 50% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 60%);
+        }
+
+        /* Top Header Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(13, 18, 31, 0.6);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--bg-card-border);
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-crown {
+            font-size: 1.4rem;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
+        }
+
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--cyan-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .version-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--cyan-glow);
+            background: var(--cyan-dim);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        /* Main Content Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 24px;
+        }
+
+        /* Avatar Section */
+        .avatar-wrap {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .hero-img {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--cyan-glow);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .hero-img.connected {
+            border-color: var(--emerald-glow);
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 12px;
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .status-pill.connected {
+            background: var(--emerald-dim);
+            color: var(--emerald-glow);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .status-pill.connecting {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Giant Connect Button */
+        .connect-btn-container {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .connect-btn {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background: linear-gradient(145deg, #121929 0%, #090e18 100%);
+            border: 4px solid var(--cyan-glow);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.25), inset 0 0 20px rgba(0, 242, 254, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .connect-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 45px rgba(0, 242, 254, 0.45);
+        }
+
+        .connect-btn:active {
+            transform: scale(0.96);
+        }
+
+        .connect-btn.connected {
+            border-color: var(--emerald-glow);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .connect-btn.connecting {
+            border-color: #fbbf24;
+            animation: pulse-border 1.5s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+            50% { box-shadow: 0 0 45px rgba(251, 191, 36, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+        }
+
+        .power-icon {
+            font-size: 2.2rem;
+            margin-bottom: 4px;
+            color: var(--cyan-glow);
+            filter: drop-shadow(0 0 8px currentColor);
+            transition: all 0.3s;
+        }
+
+        .connect-btn.connected .power-icon {
+            color: var(--emerald-glow);
+        }
+
+        .btn-label {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        /* Metrics & Stats Card */
+        .stats-card {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value.ping {
+            color: var(--emerald-glow);
+        }
+
+        /* Server Location Box */
+        .location-bar {
+            width: 100%;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .location-flag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .system-proxy-pill {
+            font-size: 0.7rem;
+            color: var(--cyan-glow);
+            background: var(--cyan-dim);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* Force Update Overlay (Unclosable) */
+        .update-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 9, 17, 0.96);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 24px;
+            text-align: center;
+        }
+
+        .update-overlay.active {
+            display: flex;
+        }
+
+        .update-icon {
+            font-size: 3.5rem;
+            color: #fbbf24;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
+        }
+
+        .update-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .update-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .update-action-btn {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: #050a14;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 12px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+            transition: all 0.3s;
+        }
+
+        .update-action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="brand-info">
+            <span class="brand-crown">👑</span>
+            <span class="brand-title">LORENZO VPN</span>
+        </div>
+        <span class="version-badge">v1.0.0</span>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Avatar & Status -->
+        <div class="avatar-wrap">
+            <img src="lorenzo.jpg" alt="Lorenzo" id="hero-avatar" class="hero-img">
+        </div>
+        <div id="status-pill" class="status-pill">
+            <span class="status-dot"></span>
+            <span id="status-text">غير متصل (Disconnected)</span>
+        </div>
+
+        <!-- Giant Connect Button -->
+        <div class="connect-btn-container">
+            <button id="connect-btn" class="connect-btn" onclick="toggleConnect()">
+                <span class="power-icon">⚡</span>
+                <span id="btn-text" class="btn-label">اتصال</span>
+            </button>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="stats-card">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-title">مدة الاتصال (Timer)</span>
+                    <span id="timer-text" class="stat-value">00:00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-title">سرعة الاستجابة (Ping)</span>
+                    <span id="ping-text" class="stat-value ping">-- ms</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-title">البيانات المستلمة (Rx)</span>
+                    <span id="bytes-rx" class="stat-value">0.0 MB</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-title">البيانات المرسلة (Tx)</span>
+                    <span id="bytes-tx" class="stat-value">0.0 MB</span>
+                </div>
+            </div>
+
+            <div class="location-bar">
+                <div class="location-flag">
+                    <span>🇳🇱</span>
+                    <span>أمستردام (أوروبا)</span>
+                </div>
+                <span class="system-proxy-pill">بروكسي الويندوز تلقائي</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Force Update Overlay -->
+    <div id="update-modal" class="update-overlay">
+        <div class="update-icon">🛑</div>
+        <div class="update-title">تحديث أمني إجباري مطلوب!</div>
+        <p class="update-desc" id="update-changelog">
+            نسختك الحالية أصبحت قديمة وغير مدعومة أمنياً.<br>
+            تم إيقاف الاتصال للحفاظ على تشفيرك وسرعة اتصالك.
+        </p>
+        <a id="update-download-btn" href="#" target="_blank" class="update-action-btn">
+            📥 تحميل التحديث الجديد الآن
+        </a>
+    </div>
+
+    <script>
+        let isConnected = false;
+        let isConnecting = false;
+        let elapsedSeconds = 0;
+        let timerInterval = null;
+
+        // Elements
+        const connectBtn = document.getElementById('connect-btn');
+        const btnText = document.getElementById('btn-text');
+        const statusPill = document.getElementById('status-pill');
+        const statusText = document.getElementById('status-text');
+        const heroAvatar = document.getElementById('hero-avatar');
+        const timerText = document.getElementById('timer-text');
+        const pingText = document.getElementById('ping-text');
+        const bytesRxText = document.getElementById('bytes-rx');
+        const bytesTxText = document.getElementById('bytes-tx');
+        const updateModal = document.getElementById('update-modal');
+        const updateDownloadBtn = document.getElementById('update-download-btn');
+
+        // Check for updates on startup
+        fetch('/api/check-update')
+            .then(res => res.json())
+            .then(data => {
+                if (data.force_update) {
+                    updateModal.classList.add('active');
+                    updateDownloadBtn.href = data.download_url || 'https://github.com/yusufvpn/lorenzo-vpn/releases/latest';
+                }
+            })
+            .catch(() => {});
+
+        function toggleConnect() {
+            if (isConnecting) return;
+
+            if (isConnected) {
+                // Disconnect
+                fetch('/api/disconnect', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(() => setDisconnectedState())
+                    .catch(() => setDisconnectedState());
+            } else {
+                // Connect
+                setConnectingState();
+                fetch('/api/connect', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.success) {
+                            setConnectedState();
+                        } else {
+                            alert('فشل الاتصال: ' + (res.error || 'خطأ غير معروف'));
+                            setDisconnectedState();
+                        }
+                    })
+                    .catch(err => {
+                        alert('تعذر الاتصال بالسيرفر المشفر: ' + err);
+                        setDisconnectedState();
+                    });
+            }
+        }
+
+        function setConnectingState() {
+            isConnecting = true;
+            connectBtn.className = 'connect-btn connecting';
+            btnText.innerText = 'جاري الاتصال...';
+            statusPill.className = 'status-pill connecting';
+            statusText.innerText = 'جاري الاتصال بالسيرفر...';
+        }
+
+        function setConnectedState() {
+            isConnected = true;
+            isConnecting = false;
+            connectBtn.className = 'connect-btn connected';
+            btnText.innerText = 'قطع الاتصال';
+            statusPill.className = 'status-pill connected';
+            statusText.innerText = 'متصل بنجاح 🟢 (مشفر بالكامل)';
+            heroAvatar.classList.add('connected');
+            pingText.innerText = '102 ms';
+
+            // Start timer
+            elapsedSeconds = 0;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                timerText.innerText = formatTime(elapsedSeconds);
+            }, 1000);
+        }
+
+        function setDisconnectedState() {
+            isConnected = false;
+            isConnecting = false;
+            connectBtn.className = 'connect-btn';
+            btnText.innerText = 'اتصال';
+            statusPill.className = 'status-pill';
+            statusText.innerText = 'غير متصل (Disconnected)';
+            heroAvatar.classList.remove('connected');
+            pingText.innerText = '-- ms';
+
+            clearInterval(timerInterval);
+            timerText.innerText = '00:00:00';
+        }
+
+        function formatTime(totalSec) {
+            const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+            const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+            const s = String(totalSec % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        // Live Poll Status
+        setInterval(() => {
+            fetch('/api/poll-stats')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.bytes_rx) {
+                        bytesRxText.innerText = (data.bytes_rx / (1024 * 1024)).toFixed(1) + ' MB';
+                    }
+                    if (data.bytes_tx) {
+                        bytesTxText.innerText = (data.bytes_tx / (1024 * 1024)).toFixed(1) + ' MB';
+                    }
+                    if (data.ping && isConnected) {
+                        pingText.innerText = data.ping + ' ms';
+                    }
+                })
+                .catch(() => {});
+        }, 1500);
+    </script>
+</body>
+</html>
