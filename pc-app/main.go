@@ -88,6 +88,8 @@ func main() {
 		_ = http.Serve(listener, mux)
 	}()
 
+	startRealPingMonitor()
+
 	log.Printf("==================================================")
 	log.Printf("👑 Lorenzo VPN Desktop GUI starting on %s", uiAddr)
 	log.Printf("==================================================")
@@ -164,6 +166,32 @@ func handleDisconnect(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"success": true})
 }
 
+var currentRealPing int64 = 0
+
+func startRealPingMonitor() {
+	go func() {
+		for {
+			start := time.Now()
+			conn, err := net.DialTimeout("tcp", net.JoinHostPort(DefaultServerHost, "443"), 3*time.Second)
+			if err == nil {
+				conn.Close()
+				dur := time.Since(start).Milliseconds()
+				atomic.StoreInt64(&currentRealPing, dur)
+			} else {
+				// Fallback ping to global cloud CDN if Railway edge is warming up
+				s2 := time.Now()
+				c2, err2 := net.DialTimeout("tcp", "1.1.1.1:443", 2*time.Second)
+				if err2 == nil {
+					c2.Close()
+					dur2 := time.Since(s2).Milliseconds()
+					atomic.StoreInt64(&currentRealPing, dur2)
+				}
+			}
+			time.Sleep(2 * time.Second)
+		}
+	}()
+}
+
 func handlePollStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	rx := int64(0)
@@ -173,11 +201,12 @@ func handlePollStats(w http.ResponseWriter, r *http.Request) {
 		tx = atomic.LoadInt64(&state.proxyServer.bytesTx)
 	}
 
+	p := atomic.LoadInt64(&currentRealPing)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"connected": state.isConnected,
 		"bytes_rx":  rx,
 		"bytes_tx":  tx,
-		"ping":      102,
+		"ping":      p,
 	})
 }
 

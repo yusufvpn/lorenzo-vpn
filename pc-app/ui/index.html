@@ -500,7 +500,6 @@
             statusPill.className = 'status-pill connected';
             statusText.innerText = 'متصل بنجاح 🟢 (مشفر بالكامل)';
             heroAvatar.classList.add('connected');
-            pingText.innerText = '102 ms';
 
             // Start timer
             elapsedSeconds = 0;
@@ -543,11 +542,14 @@
                     if (data.bytes_tx) {
                         bytesTxText.innerText = (data.bytes_tx / (1024 * 1024)).toFixed(1) + ' MB';
                     }
-                    if (data.ping && isConnected) {
+                    if (data.ping && data.ping > 0) {
                         pingText.innerText = data.ping + ' ms';
+                    } else {
+                        pingText.innerText = '-- ms';
                     }
                 })
-        // Heartbeat
+                .catch(() => {});
+        }, 1500);
         setInterval(() => {
             fetch('/api/heartbeat').catch(() => {});
         }, 1000);
